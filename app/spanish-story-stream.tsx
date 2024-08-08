@@ -146,13 +146,21 @@ const SpanishStoryStreamComponent: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Examples for: {selectedWord}</DialogTitle>
           </DialogHeader>
-          <div className="mt-4 flex-grow overflow-y-auto">
-            {examples.map((example, index) => (
-              <div key={index} className="mb-4">
-                <p>{example.text}</p>
-                <p className="text-gray-400 italic">{example.textTranslated}</p>
+          <div className="mt-4 flex-grow overflow-y-auto relative">
+            {examples.length === 0 ? (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
               </div>
-            ))}
+            ) : (
+              examples.map((example, index) => (
+                <div key={index} className="mb-4">
+                  <p>{example.text}</p>
+                  <p className="text-gray-400 italic">
+                    {example.textTranslated}
+                  </p>
+                </div>
+              ))
+            )}
           </div>
         </DialogContent>
       </Dialog>
