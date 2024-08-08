@@ -36,6 +36,7 @@ const story: Paragraph[] = [
 const SpanishStoryStreamComponent: React.FC = () => {
   const [showTranslations, setShowTranslations] = useState<boolean[]>([]);
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
+  const [translatedWord, setTranslatedWord] = useState<string | null>(null);
   const [examples, setExamples] = useState<ExampleSentence[]>([]);
   const [isDarkMode, setIsDarkMode] = useState(true);
 
@@ -53,6 +54,7 @@ const SpanishStoryStreamComponent: React.FC = () => {
       story[paragraphIndex].textTranslated
     );
     for await (const partialObject of readStreamableValue(object)) {
+      partialObject && setTranslatedWord(partialObject.translatedWord);
       if (partialObject && Array.isArray(partialObject.examples)) {
         setExamples(partialObject.examples);
       }
@@ -61,6 +63,23 @@ const SpanishStoryStreamComponent: React.FC = () => {
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
+  };
+
+  const highlightWord = (
+    text: string | undefined,
+    word: string,
+    textColor: string = "text-yellow-400"
+  ) => {
+    if (!text || !word) return text || "";
+    const regex = new RegExp(`\\b${word}\\b`, "gi");
+    return text.split(regex).map((part, index, array) => (
+      <React.Fragment key={index}>
+        {part}
+        {index < array.length - 1 && (
+          <span className={`${textColor} font-bold`}>{word}</span>
+        )}
+      </React.Fragment>
+    ));
   };
 
   return (
@@ -146,6 +165,13 @@ const SpanishStoryStreamComponent: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Examples for: {selectedWord}</DialogTitle>
           </DialogHeader>
+          <div>
+            {translatedWord && (
+              <p className="text-gray-400 italic">
+                Translated word: {translatedWord}
+              </p>
+            )}
+          </div>
           <div className="mt-4 flex-grow overflow-y-auto relative">
             {examples.length === 0 ? (
               <div className="absolute inset-0 flex items-center justify-center">
@@ -154,9 +180,13 @@ const SpanishStoryStreamComponent: React.FC = () => {
             ) : (
               examples.map((example, index) => (
                 <div key={index} className="mb-4">
-                  <p>{example.text}</p>
+                  <p>{highlightWord(example.text, selectedWord || "")}</p>
                   <p className="text-gray-400 italic">
-                    {example.textTranslated}
+                    {highlightWord(
+                      example.textTranslated,
+                      translatedWord || "",
+                      "text-orange-300"
+                    )}
                   </p>
                 </div>
               ))
