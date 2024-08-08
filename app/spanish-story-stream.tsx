@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { readStreamableValue } from "ai/rsc";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun } from "lucide-react";
-import { ExampleSentence, getExamples } from "@/app/actions/getExamples";
+import { getExamples, ExampleSentence } from "@/app/actions/getExamplesStream";
 
 type Paragraph = {
   text: string;
@@ -32,10 +33,8 @@ const story: Paragraph[] = [
   },
 ];
 
-const SpanishStoryComponent: React.FC = () => {
-  const [showTranslations, setShowTranslations] = useState<boolean[]>(
-    new Array(story.length).fill(false)
-  );
+const SpanishStoryStreamComponent: React.FC = () => {
+  const [showTranslations, setShowTranslations] = useState<boolean[]>([]);
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [examples, setExamples] = useState<ExampleSentence[]>([]);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -48,14 +47,15 @@ const SpanishStoryComponent: React.FC = () => {
 
   const handleWordClick = async (word: string, paragraphIndex: number) => {
     setSelectedWord(word);
-    try {
-      const examplesData = await getExamples(
-        word,
-        story[paragraphIndex].textTranslated
-      );
-      setExamples(examplesData);
-    } catch (error) {
-      console.error("Error fetching examples:", error);
+    setExamples([]);
+    const { object } = await getExamples(
+      word,
+      story[paragraphIndex].textTranslated
+    );
+    for await (const partialObject of readStreamableValue(object)) {
+      if (partialObject && Array.isArray(partialObject.examples)) {
+        setExamples(partialObject.examples);
+      }
     }
   };
 
@@ -141,27 +141,23 @@ const SpanishStoryComponent: React.FC = () => {
         <DialogContent
           className={`${
             isDarkMode ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
-          } max-w-2xl`}
+          } max-w-2xl min-h-[500px] flex flex-col`}
         >
           <DialogHeader>
             <DialogTitle>Examples for: {selectedWord}</DialogTitle>
           </DialogHeader>
-          {
-            <div className="mt-4">
-              {examples.map((example, index) => (
-                <div key={index} className="mb-4">
-                  <p>{example.text}</p>
-                  <p className="text-gray-400 italic">
-                    {example.textTranslated}
-                  </p>
-                </div>
-              ))}
-            </div>
-          }
+          <div className="mt-4 flex-grow overflow-y-auto">
+            {examples.map((example, index) => (
+              <div key={index} className="mb-4">
+                <p>{example.text}</p>
+                <p className="text-gray-400 italic">{example.textTranslated}</p>
+              </div>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
   );
 };
 
-export default SpanishStoryComponent;
+export default SpanishStoryStreamComponent;
