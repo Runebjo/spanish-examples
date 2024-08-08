@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { readStreamableValue } from "ai/rsc";
 import {
   Dialog,
@@ -47,16 +47,19 @@ const SpanishStoryStreamComponent: React.FC = () => {
   };
 
   const handleWordClick = async (word: string, paragraphIndex: number) => {
-    setSelectedWord(word);
-    setExamples([]);
-    const { object } = await getExamples(
-      word,
-      story[paragraphIndex].textTranslated
-    );
-    for await (const partialObject of readStreamableValue(object)) {
-      partialObject && setTranslatedWord(partialObject.translatedWord);
-      if (partialObject && Array.isArray(partialObject.examples)) {
-        setExamples(partialObject.examples);
+    const cleanWord = word.replace(/[.,!?;:()""'']/g, "").trim();
+    if (cleanWord) {
+      setSelectedWord(cleanWord);
+      setExamples([]);
+      const { object } = await getExamples(
+        cleanWord,
+        story[paragraphIndex].textTranslated
+      );
+      for await (const partialObject of readStreamableValue(object)) {
+        partialObject && setTranslatedWord(partialObject.translatedWord);
+        if (partialObject && Array.isArray(partialObject.examples)) {
+          setExamples(partialObject.examples);
+        }
       }
     }
   };
@@ -116,15 +119,24 @@ const SpanishStoryStreamComponent: React.FC = () => {
             }`}
           >
             <p className="mb-4 text-lg leading-relaxed">
-              {paragraph.text.split(" ").map((word, wordIndex) => (
-                <span
-                  key={wordIndex}
-                  className="cursor-pointer hover:underline transition-colors duration-200 hover:text-blue-400"
-                  onClick={() => handleWordClick(word, index)}
-                >
-                  {word}{" "}
-                </span>
-              ))}
+              {paragraph.text
+                .split(/(\s+|[.,!?;:()""''])/g)
+                .map((part, partIndex) => {
+                  const cleanPart = part.trim();
+                  if (cleanPart) {
+                    return (
+                      <span
+                        key={partIndex}
+                        className="cursor-pointer hover:underline transition-colors duration-200 hover:text-blue-400"
+                        onClick={() => handleWordClick(cleanPart, index)}
+                      >
+                        {part}
+                      </span>
+                    );
+                  } else {
+                    return part; // Return whitespace and punctuation as-is
+                  }
+                })}
             </p>
             <Button
               onClick={() => toggleTranslation(index)}
