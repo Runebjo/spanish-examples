@@ -31,6 +31,21 @@ const story: Paragraph[] = [
     text: "María amaba explorar los bosques cercanos.",
     textTranslated: "Maria loved exploring the nearby forests.",
   },
+  {
+    text: "Un día, mientras caminaba por el bosque, María se encontró con un viejo árbol hueco.",
+    textTranslated:
+      "One day, while walking through the forest, Maria came across an old hollow tree.",
+  },
+  {
+    text: "Curiosa, echó un vistazo dentro del árbol y descubrió un pequeño cofre.",
+    textTranslated:
+      "Curious, she took a look inside the tree and discovered a small chest.",
+  },
+  {
+    text: "Este descubrimiento marcaría el inicio de una gran aventura para María y todo el pueblo.",
+    textTranslated:
+      "This discovery would mark the beginning of a great adventure for Maria and the entire village.",
+  },
 ];
 
 const SpanishStoryStreamComponent: React.FC = () => {
@@ -51,6 +66,7 @@ const SpanishStoryStreamComponent: React.FC = () => {
     if (cleanWord) {
       setSelectedWord(cleanWord);
       setExamples([]);
+      setTranslatedWord(null);
       const { object } = await getExamples(
         cleanWord,
         story[paragraphIndex].textTranslated
@@ -70,19 +86,27 @@ const SpanishStoryStreamComponent: React.FC = () => {
 
   const highlightWord = (
     text: string | undefined,
-    word: string,
     textColor: string = "text-yellow-400"
   ) => {
-    if (!text || !word) return text || "";
-    const regex = new RegExp(`\\b${word}\\b`, "gi");
-    return text.split(regex).map((part, index, array) => (
-      <React.Fragment key={index}>
-        {part}
-        {index < array.length - 1 && (
-          <span className={`${textColor} font-bold`}>{word}</span>
-        )}
-      </React.Fragment>
-    ));
+    if (!text) return text || "";
+
+    // Split the text by double asterisks
+    const parts = text.split(/(\*\*.*?\*\*)/);
+
+    return parts.map((part, index) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        // Remove the asterisks and highlight the word
+        const word = part.slice(2, -2);
+        return (
+          <span key={index} className={`${textColor} font-bold`}>
+            {word}
+          </span>
+        );
+      } else {
+        // For parts not surrounded by asterisks, return as is
+        return part;
+      }
+    });
   };
 
   return (
@@ -192,13 +216,9 @@ const SpanishStoryStreamComponent: React.FC = () => {
             ) : (
               examples.map((example, index) => (
                 <div key={index} className="mb-4">
-                  <p>{highlightWord(example.text, selectedWord || "")}</p>
+                  <p>{highlightWord(example.text)}</p>
                   <p className="text-gray-400 italic">
-                    {highlightWord(
-                      example.textTranslated,
-                      translatedWord || "",
-                      "text-orange-300"
-                    )}
+                    {highlightWord(example.textTranslated, "text-orange-300")}
                   </p>
                 </div>
               ))
