@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { readStreamableValue } from "ai/rsc";
+import React, { useState } from 'react';
+import { readStreamableValue } from 'ai/rsc';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Moon, Sun } from "lucide-react";
-import { getExamples, ExampleSentence } from "@/app/actions/getExamplesStream";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Moon, Sun } from 'lucide-react';
+import { getExamples, ExampleSentence } from '@/app/actions/getExamplesStream';
 
 type Paragraph = {
   text: string;
@@ -19,32 +19,32 @@ type Paragraph = {
 
 const story: Paragraph[] = [
   {
-    text: "Había una vez un pequeño pueblo en las montañas.",
+    text: 'Había una vez un pequeño pueblo en las montañas.',
     textTranslated:
-      "Once upon a time, there was a small village in the mountains.",
+      'Once upon a time, there was a small village in the mountains.',
   },
   {
-    text: "En este pueblo vivía una niña llamada María.",
-    textTranslated: "In this village lived a girl named Maria.",
+    text: 'En este pueblo vivía una niña llamada María.',
+    textTranslated: 'In this village lived a girl named Maria.',
   },
   {
-    text: "María amaba explorar los bosques cercanos.",
-    textTranslated: "Maria loved exploring the nearby forests.",
+    text: 'María amaba explorar los bosques cercanos.',
+    textTranslated: 'Maria loved exploring the nearby forests.',
   },
   {
-    text: "Un día, mientras caminaba por el bosque, María se encontró con un viejo árbol hueco.",
+    text: 'Un día, mientras caminaba por el bosque, María se encontró con un viejo árbol hueco.',
     textTranslated:
-      "One day, while walking through the forest, Maria came across an old hollow tree.",
+      'One day, while walking through the forest, Maria came across an old hollow tree.',
   },
   {
-    text: "Curiosa, echó un vistazo dentro del árbol y descubrió un pequeño cofre.",
+    text: 'Curiosa, echó un vistazo dentro del árbol y descubrió un pequeño cofre.',
     textTranslated:
-      "Curious, she took a look inside the tree and discovered a small chest.",
+      'Curious, she took a look inside the tree and discovered a small chest.',
   },
   {
-    text: "Este descubrimiento marcaría el inicio de una gran aventura para María y todo el pueblo.",
+    text: 'Este descubrimiento marcaría el inicio de una gran aventura para María y todo el pueblo.',
     textTranslated:
-      "This discovery would mark the beginning of a great adventure for Maria and the entire village.",
+      'This discovery would mark the beginning of a great adventure for Maria and the entire village.',
   },
 ];
 
@@ -62,7 +62,7 @@ const SpanishStoryStreamComponent: React.FC = () => {
   };
 
   const handleWordClick = async (word: string, paragraphIndex: number) => {
-    const cleanWord = word.replace(/[.,!?;:()""'']/g, "").trim();
+    const cleanWord = word.replace(/[.,!?;:()""'']/g, '').trim();
     if (cleanWord) {
       setSelectedWord(cleanWord);
       setExamples([]);
@@ -86,15 +86,15 @@ const SpanishStoryStreamComponent: React.FC = () => {
 
   const highlightWord = (
     text: string | undefined,
-    textColor: string = "text-yellow-400"
+    textColor: string = 'text-yellow-400'
   ) => {
-    if (!text) return text || "";
+    if (!text) return text || '';
 
     // Split the text by double asterisks
     const parts = text.split(/(\*\*.*?\*\*)/);
 
     return parts.map((part, index) => {
-      if (part.startsWith("**") && part.endsWith("**")) {
+      if (part.startsWith('**') && part.endsWith('**')) {
         // Remove the asterisks and highlight the word
         const word = part.slice(2, -2);
         return (
@@ -112,7 +112,7 @@ const SpanishStoryStreamComponent: React.FC = () => {
   return (
     <div
       className={`min-h-screen ${
-        isDarkMode ? "bg-gray-900 text-gray-100" : "bg-gray-100 text-gray-900"
+        isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-900'
       } transition-colors duration-300`}
     >
       <div className="max-w-3xl mx-auto p-6">
@@ -124,8 +124,8 @@ const SpanishStoryStreamComponent: React.FC = () => {
             size="icon"
             className={
               isDarkMode
-                ? "border-gray-300 text-gray-300"
-                : "border-gray-700 text-gray-700"
+                ? 'border-gray-300 text-gray-300'
+                : 'border-gray-700 text-gray-700'
             }
           >
             {isDarkMode ? (
@@ -139,7 +139,7 @@ const SpanishStoryStreamComponent: React.FC = () => {
           <div
             key={index}
             className={`mb-8 p-6 rounded-lg shadow-lg ${
-              isDarkMode ? "bg-gray-800" : "bg-white"
+              isDarkMode ? 'bg-gray-800' : 'bg-white'
             }`}
           >
             <p className="mb-4 text-lg leading-relaxed">
@@ -164,19 +164,19 @@ const SpanishStoryStreamComponent: React.FC = () => {
             </p>
             <Button
               onClick={() => toggleTranslation(index)}
-              variant={isDarkMode ? "secondary" : "outline"}
+              variant={isDarkMode ? 'secondary' : 'outline'}
               className={`transition-colors duration-200 ${
                 isDarkMode
-                  ? "bg-gray-700 hover:bg-gray-600 text-white"
-                  : "hover:bg-gray-200"
+                  ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                  : 'hover:bg-gray-200'
               }`}
             >
-              {showTranslations[index] ? "Hide" : "Show"} Translation
+              {showTranslations[index] ? 'Hide' : 'Show'} Translation
             </Button>
             {showTranslations[index] && (
               <p
                 className={`mt-4 italic ${
-                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                  isDarkMode ? 'text-gray-300' : 'text-gray-600'
                 }`}
               >
                 {paragraph.textTranslated}
@@ -195,7 +195,7 @@ const SpanishStoryStreamComponent: React.FC = () => {
       >
         <DialogContent
           className={`${
-            isDarkMode ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
+            isDarkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900'
           } max-w-2xl min-h-[500px] flex flex-col`}
         >
           <DialogHeader>
@@ -218,7 +218,7 @@ const SpanishStoryStreamComponent: React.FC = () => {
                 <div key={index} className="mb-4">
                   <p>{highlightWord(example.text)}</p>
                   <p className="text-gray-400 italic">
-                    {highlightWord(example.textTranslated, "text-orange-300")}
+                    {highlightWord(example.textTranslated)}
                   </p>
                 </div>
               ))
